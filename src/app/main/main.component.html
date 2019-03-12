@@ -1,0 +1,204 @@
+<div class="main-realestate">
+  <h1>
+    Introducing 
+    <span class="hutch">
+        Hutch
+    </span>
+    <Br> the Flip Finder
+  </h1>
+
+  <h2>
+    HUTCH combines data from multiple sources to discover realistic buying opportunities + mortgage calculation.
+  </h2>
+</div>
+
+<div class="center">
+
+  <p>
+    The Hutch MVP is complete and seeking investment. 
+    <Br>
+    To learn more or schedule a demo email karl.steltenpohl [at] gmail.com
+  </p>
+</div>
+
+<div [hidden]="true">
+<form class="example-form" [formGroup]="mainForm" (ngSubmit)="onSubmit()">
+
+  <mat-form-field class="example-full-width">
+    <!--<input  [options]='options' #placesRef="ngx-places" (onAddressChange)="handleAddressChange($event)"/>-->
+    <input matInput formControlName="search" #search placeholder="search for location">
+  </mat-form-field>
+
+  <div>
+    Max Price
+    <mat-slider class="example-full-width"
+      (input)="onSliderChange($event)"
+      thumbLabel
+      [displayWith]="formatLabel"
+      tickInterval="2000"
+      min="40000"
+      max="1000000" 
+      value="1000000"></mat-slider>
+  </div>
+
+  <div class="center submit">
+    <button *ngIf="!inProgress" mat-raised-button type="submit">GO</button>
+    <mat-spinner *ngIf="inProgress" [diameter]="40" style="margin: 0px auto;"></mat-spinner>
+  </div>
+
+  <!--
+  <h5 *ngIf="success">Your form is valid!</h5>
+  -->  
+
+</form>
+
+<mat-card *ngIf="neighborhood || city || state">
+  {{ neighborhood }} {{ city }} {{ state }} <strong>{{ avgPrice | currency }}</strong>
+</mat-card>
+
+<mat-card style="padding:0px; margin-top:40px;"><app-map></app-map></mat-card>
+
+<div *ngFor="let item of feature; let i = index" >
+  <mat-card  style="margin-top:40px;">
+    <mat-card-header>
+      <img mat-card-avatar class="example-header-image" *ngIf="item.updated && item.updated.images" src="{{ item.updated.images.image[0].url[0] }}">
+      <mat-card-title>{{ item.zillow.zestimate[0].amount[0]._ | currency }}</mat-card-title>
+      <mat-card-subtitle>{{ item.zillow.address[0].street }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <img mat-card-image *ngIf="item.updated && item.updated.images" src="{{ item.updated.images.image[0].url[0] }}" (click)="openGallery(0)">
+
+    <div *ngIf="item.images.length">
+    <ngx-image-gallery 
+      [images]="item.images" 
+      [conf]="conf"
+      (onOpen)="galleryOpened($event)"
+      (onClose)="galleryClosed()"
+      (onImageClicked)="galleryImageClicked($event)"
+      (onImageChange)="galleryImageChanged($event)"
+      (onDelete)="deleteImage($event)"
+      ></ngx-image-gallery>
+    </div>
+    
+    <mat-card-content *ngIf="item.updated">
+      <p>
+        {{ item.updated.homeDescription }}
+      </p>
+      <ul *ngIf="item.updated.editedFacts">
+        <li *ngFor="let key of item.updated.editedFacts | keys">{{ key | camel | titlecase }}: {{ item.updated.editedFacts[key][0] }}</li>
+      </ul>
+    </mat-card-content>
+    <!-- 
+    <mat-card-actions hidden="true">
+      <button mat-button>LIKE</button>
+      <button mat-button>SHARE</button>
+    </mat-card-actions>
+    -->
+  </mat-card>
+</div>
+
+<!-- Mortgage Calculator -->
+<mat-card style="margin-top:40px;" *ngIf="feature && feature.length == 1">
+
+    <mat-card-header>
+      <mat-card-title>Hutch Mortgage Calculator</mat-card-title>
+      <mat-card-subtitle>{{ formula }}</mat-card-subtitle>
+    </mat-card-header>  
+  
+    <mat-card-content>
+
+      <div>
+        Home Price
+        <mat-slider class="example-full-width" 
+        (input)="homePriceChange($event)"
+        [displayWith]="formatLabel"
+        thumbLabel
+        tickInterval="1000"
+        min="40000"
+        max="1000000"
+        value="1000000"
+        disabled="true" 
+        [(ngModel)]="mortgage.homePrice" ></mat-slider>
+      </div>
+
+      <div>
+        Down Payment
+        <mat-slider class="example-full-width"
+        (input)="downPaymentChange($event)"
+        [displayWith]="formatLabel"
+        thumbLabel
+        tickInterval="1000"
+        min="40000"
+        max="1000000"
+        value="1000000"></mat-slider>
+      </div>
+
+      <div>
+        Interest Rate (%)
+        <mat-slider class="example-full-width"
+        (input)="interestRateChange($event)"
+        thumbLabel
+        step="0.01"
+        min="0"
+        max="10"
+        value="5"></mat-slider>
+      </div>
+
+      <div>
+        Mortgage Period (years) 
+        <mat-slider class="example-full-width"
+        (input)="mortgagePeriodChange($event)"
+        thumbLabel
+        step="5"
+        min="5"
+        max="40"
+        value="15"></mat-slider>
+      </div>
+      
+    </mat-card-content>
+</mat-card>
+
+<mat-card  style="margin-top:40px;" *ngIf="feature && feature.length == 1">
+    <b>Monthly Mortgage Payment:</b>
+    <br>
+    Predicted Payment: {{mortgage.mortagePayment | currency:"USD $ "}}
+    <br>
+    <br>
+    <div>
+      <p>Variable Watch (For Manual Calculation):</p>
+      New Home Amount: {{mortgage.newHomeAmt}}
+      <br>
+      Mortage APR Monthly Rate: {{mortgage.aprMonthlyRate}}
+      <br>
+      Total Number of Payments: {{mortgage.numberOfPayments}}
+      <br>
+      monthlyInterest^numOfPayments: {{mortgage.interestPayments}}
+      <br>
+      <hr>
+      Total Monthly Mortgage Payment: {{mortgage.monthlyPayment | currency:"USD $ "}}
+    </div>
+</mat-card>
+
+<!--
+<div *ngFor="let item of markers; let i = index" [hidden]="item.visible === false" >
+  <mat-card  style="margin-top:40px;">
+    <mat-card-header>
+      <div mat-card-avatar class="example-header-image"></div>
+      <mat-card-title>{{ item.zillow.zestimate[0].amount[0]._ | currency }}</mat-card-title>
+      <mat-card-subtitle>{{ item.zillow.address[0].street }}</mat-card-subtitle>
+    </mat-card-header>
+    
+  </mat-card>
+</div>
+-->
+
+
+<!--
+<div *ngIf="streets">
+  Debugging streets
+  <ul>
+    <li *ngFor="let item of streets">{{item}}</li>
+  </ul>
+</div>
+-->
+</div>

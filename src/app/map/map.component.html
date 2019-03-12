@@ -1,0 +1,71 @@
+<agm-map *ngIf="coords" [latitude]="coords[coords.length-1].lat" [longitude]="coords[coords.length-1].lng" [zoom]="zoom" [minZoom]="14" (boundsChange)="boundsChange($event)" (idle)="goIdle($event)">
+  <agm-marker 
+  *ngFor="let m of markers; let i = index"
+  [latitude]="m.lat"
+  [longitude]="m.lng"
+  [label]="m.label" 
+  [visible]="m.visible"
+  (markerClick)="clickedMarker(m.label, infoWindow, i)" 
+  [iconUrl]='m.icon'>
+
+    <agm-info-window #infoWindow>
+      <!-- <strong>{{ m.lat }}, {{m.lng}}</strong> -->
+      <span>{{ m.zillow.address[0].street[0] }}</span>
+      <Br>
+      
+
+      <span>Price: {{ m.zillow.zestimate[0].amount[0]._ | currency }} {{ m.zillow.zestimate[0].amount[0].$.currency }}</span>
+      <br>
+      <span *ngIf="m.zillow.localRealEstate[0].region[0].zindexValue[0]">Index: {{ m.zillow.localRealEstate[0].region[0].zindexValue[0] | currency }} {{ m.zillow.zestimate[0].amount[0].$.currency }}</span>
+      
+    </agm-info-window>
+
+  </agm-marker>
+  
+  <!--
+  <agm-rectangle 
+      [north]="coords[coords.length-1].lat + .01" 
+      [east]="coords[coords.length-1].lng + .01" 
+      [south]="coords[coords.length-1].lat - .01"
+      [west]="coords[coords.length-1].lng - .05"
+      [fillColor]="'red'"
+      [editable]="true">
+  </agm-rectangle>
+  -->
+
+  <!--
+  <agm-rectangle 
+    [north]="bounds.north" 
+    [east]="bounds.east" 
+    [south]="bounds.south"
+    [west]="bounds.west"
+    [fillColor]="'blue'"
+    [editable]="true">
+  </agm-rectangle>
+  -->
+</agm-map>
+
+<!--
+N/S: {{ bounds.north }} , {{ bounds.south }}
+<br>
+E/W: {{ bounds.east }} , {{ bounds.west }}
+<br><br>
+-->
+
+<!--
+<div *ngIf="coords">
+  Debugging coordinates {{ coords ? coords.length : 'NONE' }}
+  <ul>
+    <li *ngFor="let item of coords">{{item.lat}}, {{item.lng}}</li>
+  </ul>
+</div>
+-->
+
+<!-- 
+<div *ngIf="markers">
+  Debugging markers {{ markers ? markers.length : 'NONE' }}
+  <ul>
+    <li *ngFor="let m of markers; let i = index">{{m.lat}}, {{m.lng}}</li>
+  </ul>
+</div>
+-->

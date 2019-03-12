@@ -1,0 +1,28 @@
+div {
+
+    font-size: 10px;
+    text-align: center;
+    display: block;
+    margin: 40px 20px;
+
+    div {
+        &.logos {
+            width: 500px;
+        }
+
+        min-width: 300px;
+        max-width: 500px;
+        margin: 0px auto;
+        display: block;
+        min-height: 50px;
+
+        ul {
+            li {
+                width: 100px;
+                float:left;
+                list-style: none;
+                margin: 0 20px;
+            }
+        }    
+    }
+}
